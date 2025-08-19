@@ -100,6 +100,7 @@ const getPuter = (): typeof window.puter | null =>
     typeof window !== "undefined" && window.puter ? window.puter : null;
 
 export const usePuterStore = create<PuterStore>((set, get) => {
+    // these are what we can import from the puter store
     const setError = (msg: string) => {
         set({
             error: msg,
