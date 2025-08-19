@@ -1,4 +1,10 @@
+import clsx, { type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
 // Add this function to your utils or directly in your component file
+export function cn(...inputs:ClassValue[]){
+  return twMerge(clsx(inputs))
+}
 
 export function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

@@ -1,5 +1,8 @@
 import React, { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import Ats from '~/components/Ats'
+import Details from '~/components/Details'
+import Summary from '~/components/Summary'
 import { usePuterStore } from '~/lib/puter'
 
 export const meta =()=>([
@@ -12,7 +15,7 @@ const resume = () => {
 
     const [imageUrl, setImageUrl] = React.useState<string | null>('') ;           
     const [resumeUrl, setResumeUrl] = React.useState<string | null>('');
-    const [feedback, setFeedback] = React.useState<string | null>('');
+    const [feedback, setFeedback] = React.useState<Feedback | null>(null);
     const navigate =useNavigate()
 
     useEffect(()=>{
@@ -21,21 +24,21 @@ const resume = () => {
 
     useEffect(()=>{
         const loadResume = async()=>{
-            const resume = await kv.get(`resume:${id}`)
+            const resume = await kv.get(`resume:${id}`) //this will give us the resume data, fetching it from the backend or from puter
 
             if(!resume) return
 
-            const data = JSON.parse(resume)
+            const data = JSON.parse(resume) //this will give us the resume data, which includes the image path, resume path and feedback
 
-            const resumeBlob =await fs.read(data.resumePath); //this will give us a blob format
+            const resumeBlob =await fs.read(data.resumePath); //this will give us a blob format, we are reading the resume file from the file system
             if(!resumeBlob) return
 
-            //so we want to convert the actual blob to a pdf format
+            //so we want to convert the actual blob to a pdf format that is accessible and readable
             const pdfBlob = new Blob([resumeBlob], {type: 'application/pdf'})
             const resumeUrl = URL.createObjectURL(pdfBlob)
             setResumeUrl(resumeUrl)
 
-            const imageBlob = await fs.read(data.imagePath);
+            const imageBlob = await fs.read(data.imagePath); // this will give us the image blob, we are reading the image file from the file system
             if(!imageBlob) return
             const imageUrl = URL.createObjectURL(new Blob([imageBlob], {type: 'image/png'}))
             setImageUrl(imageUrl)
@@ -71,7 +74,9 @@ const resume = () => {
                 <h2 className='text-4xl !text-black font-bold'>Resume Review</h2>
                 {feedback ? (
                     <div className='flex flex-col gap-8 animate-in fade-in duration-1000'>
-
+                        <Summary feedback={feedback} />
+                        <Ats score ={feedback.ATS.score || 0} suggestions={feedback.ATS.tips || []} />
+                        <Details feedback={feedback} />
                     </div>
                 ) : (
                     <img src='/images/resume-scan-2.gif' className='w-full' />
